@@ -1,10 +1,13 @@
 import { createRequire } from "module";
+import apicache from 'apicache'
+
 let require = createRequire(import.meta.url);
 
 const fs = require("fs");
 const ewelink = require("ewelink-api");
 const express = require("express");
 const app = express();
+let cache = apicache.middleware;
 const escape = require("escape-html");
 const http = require("http");
 const https = require("https");
@@ -140,7 +143,7 @@ app.post("/", async (req, res) => {
     } else res.status(404).send(`No device found matching id: "${escape(requestedDeviceId)}" or name-keys: "${escape(requestedDeviceNameKeys)}"`);
 });
 
-app.get("/", async (req, res) => {
+app.get("/", cache('1 minute'), async (req, res) => {
     const devices = await ewelinkConnection.getDevices();
 
     if ("error" in devices) {
